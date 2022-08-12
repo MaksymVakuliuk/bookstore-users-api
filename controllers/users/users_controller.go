@@ -10,6 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	idShoudByNumber = "user id shoud be a number"
+)
+
 func CreateUser(c *gin.Context) {
 	var user users.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -28,7 +32,7 @@ func CreateUser(c *gin.Context) {
 func GetUser(c *gin.Context) {
 	userId, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
 	if userErr != nil {
-		err := errors.NewBadRequestError("user id shoud be a number")
+		err := errors.NewBadRequestError(idShoudByNumber)
 		c.JSON(err.Code, err)
 		return
 	}
@@ -42,4 +46,27 @@ func GetUser(c *gin.Context) {
 
 func SearchUser(c *gin.Context) {
 	c.String(http.StatusNotImplemented, "implement me!")
+}
+
+func UpdateUser(c *gin.Context) {
+	userId, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError(idShoudByNumber)
+		c.JSON(err.Code, err)
+		return
+	}
+	var user users.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		restError := errors.NewBadRequestError("invalid json body")
+		c.JSON(restError.Code, restError)
+		return
+	}
+	user.Id = userId
+	isPartial := c.Request.Method == http.MethodPatch
+	updatedUser, updateErr := services.UpdateUser(isPartial, user)
+	if updateErr != nil {
+		c.JSON(updateErr.Code, updateErr)
+		return
+	}
+	c.JSON(http.StatusOK, updatedUser)
 }
