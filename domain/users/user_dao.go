@@ -7,9 +7,10 @@ import (
 )
 
 const (
-	queryInsertUser  = "INSERT INTO users(first_name, last_name, email, date_created) VALUES(?, ?, ?, ?;)"
+	queryInsertUser  = "INSERT INTO users(first_name, last_name, email, date_created) VALUES(?, ?, ?, ?);"
 	queryGetUserById = "SELECT id, first_name, last_name, email, date_created FROM users WHERE id = ?;"
 	queryUpdateUser  = "UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE ID = ?;"
+	queryDereleUser  = "DELETE FROM users WHERE id = ?;"
 )
 
 func (user *User) Get() *errors.RestErr {
@@ -52,6 +53,19 @@ func (user *User) Update() *errors.RestErr {
 	defer stmt.Close()
 	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.Id)
 	if err != nil {
+		return errors.ParseMySQLError(err)
+	}
+	return nil
+}
+
+func (user *User) Delete() *errors.RestErr {
+	stmt, err := mysqldb.UsersDB.Prepare(queryDereleUser)
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(user.Id); err != nil {
 		return errors.ParseMySQLError(err)
 	}
 	return nil
