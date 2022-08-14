@@ -32,7 +32,7 @@ func (user *User) Save() *errors.RestErr {
 		return errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()
-	user.DateCreated = date.GetNowString()
+	user.DateCreated = date.GetNowDBFormat()
 	insertResult, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated)
 	if err != nil {
 		return errors.ParseMySQLError(err)
