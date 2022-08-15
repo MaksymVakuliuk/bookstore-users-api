@@ -51,9 +51,6 @@ func UpdateUser(isPartinal bool, user users.User) (*users.User, *errors.RestErr)
 		current.LastName = user.LastName
 		current.Email = user.Email
 		current.Status = user.Status
-		if err := current.Validate(); err != nil {
-			return nil, err
-		}
 	}
 	if err := current.Update(); err != nil {
 		return nil, err
@@ -66,7 +63,7 @@ func DeleteUser(userId int64) *errors.RestErr {
 	return user.Delete()
 }
 
-func SearchUserByStatus(status string) ([]users.User, *errors.RestErr) {
+func SearchUserByStatus(status string) (users.Users, *errors.RestErr) {
 	user := &users.User{}
 	return user.SearchUserByStatus(status)
 }
