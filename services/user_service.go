@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/MaksymVakuliuk/bookstore-users-api/domain/users"
+	"github.com/MaksymVakuliuk/bookstore-users-api/utils/crypto"
 	"github.com/MaksymVakuliuk/bookstore-users-api/utils/date"
 	"github.com/MaksymVakuliuk/bookstore-users-api/utils/errors"
 )
@@ -12,6 +13,7 @@ func CreateUser(user users.User) (*users.User, *errors.RestErr) {
 	}
 	user.DateCreated = date.GetNowDBFormat()
 	user.Status = users.StatusActive
+	user.Password = crypto.GetMd5(user.Password)
 	if err := user.Save(); err != nil {
 		return nil, err
 	}
@@ -44,15 +46,11 @@ func UpdateUser(isPartinal bool, user users.User) (*users.User, *errors.RestErr)
 		if user.Status != "" {
 			current.Status = user.Status
 		}
-		if user.Password != "" {
-			current.Password = user.Password
-		}
 	} else {
 		current.FirstName = user.FirstName
 		current.LastName = user.LastName
 		current.Email = user.Email
 		current.Status = user.Status
-		current.Password = user.Password
 		if err := current.Validate(); err != nil {
 			return nil, err
 		}

@@ -10,7 +10,7 @@ import (
 const (
 	queryInsertUser   = "INSERT INTO users(first_name, last_name, email, date_created, status, password) VALUES(?, ?, ?, ?, ?, ?);"
 	queryGetUserById  = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE id = ?;"
-	queryUpdateUser   = "UPDATE users SET first_name = ?, last_name = ?, email = ?, status = ?, password = ? WHERE ID = ?;"
+	queryUpdateUser   = "UPDATE users SET first_name = ?, last_name = ?, email = ?, status = ? WHERE ID = ?;"
 	queryDereleUser   = "DELETE FROM users WHERE id = ?;"
 	queryFindByStatus = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE status = ?"
 )
@@ -52,7 +52,7 @@ func (user *User) Update() *errors.RestErr {
 		return errors.NewInternalServerError(err.Error())
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.Status, user.Password, user.Id)
+	_, err = stmt.Exec(user.FirstName, user.LastName, user.Email, user.Status, user.Id)
 	if err != nil {
 		return errors.ParseMySQLError(err)
 	}
